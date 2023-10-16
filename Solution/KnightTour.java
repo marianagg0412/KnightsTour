@@ -1,123 +1,115 @@
-package KnightsTour;
+package Solution;
+import java.util.Scanner;
 
 
-import java.util.ArrayList;
-import java.util.List;
+public class KnightTour { 
+	static int N = 8; 
 
-public class KnightTour {
-    private static final int N = 6;
+	
+	static boolean isSafe(int x, int y, int[][] sol) 
+	{ 
+		return (x >= 0 && x < N && y >= 0 && y < N 
+				&& sol[x][y] == -1); 
+	} 
+	static boolean isSafeFinal(int x, int y, int[][] sol) {
+		return (x >= 0 && x < N && y >= 0 && y < N 
+				&& sol[x][y] == 0); 
+	}
 
-    public static void main(String[] args) {
-        int[][] board = new int[N][N];
-        initializeBoard(board);
+	
+	static void printSolution(int sol[][]) 
+	{ 
+		for (int x = 0; x < N; x++) { 
+			for (int y = 0; y < N; y++) 
+				System.out.print(sol[x][y] + " "); 
+			System.out.println(); 
+		} 
+	} 
 
-        List<int[][]> solutions = new ArrayList<>();
-        divideAndConquerKnightTour(board, solutions, 0, 0, N);
+	
+	static boolean solveKT(int inicialX, int inicialY) 
+	{ 
+		int sol[][] = new int[8][8]; 
 
+		/* Initialization of solution matrix */
+		for (int x = 0; x < N; x++) 
+			for (int y = 0; y < N; y++) 
+				sol[x][y] = -1; 
 
-        if (solutions.isEmpty()) {
-            System.out.println("No closed Knight's Tours found.");
-        } else {
-            for (int[][] solution : solutions) {
-                printBoard(solution);
-                System.out.println();
-            }
-        }
-    }
+		
+		int xMove[] = { 2, 1, -1, -2, -2, -1, 1, 2 }; 
+		int yMove[] = { 1, 2, 2, 1, -1, -2, -2, -1 }; 
 
-    private static void initializeBoard(int[][] board) {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                board[i][j] = -1;
-            }
-        }
-    }
+		
+		sol[inicialX][inicialY] = 0; 
 
-    private static boolean isSafe(int[][] board, int x, int y) {
-        return x >= 0 && y >= 0 && x < N && y < N && board[x][y] == -1;
-    }
+		
+		if (!solveKTUtil(inicialX, inicialY, 1, sol, xMove, yMove)) { 
+			System.out.println("Solution does not exist"); 
+			return false; 
+		} 
+		else
+			printSolution(sol); 
 
-    private static boolean knightTour(int[][] board, int x, int y, int moveCount) {
-        if (moveCount == N * N) {
-            return board[x][y] == 0;
-        }
+		return true; 
+	} 
 
-        int[] moveX = {2, 1, -1, -2, -2, -1, 1, 2};
-        int[] moveY = {1, 2, 2, 1, -1, -2, -2, -1};
+	
+	static boolean solveKTUtil(int x, int y, int movei, 
+							int sol[][], int xMove[], 
+							int yMove[]) 
+	{ 
+		if (movei == 65) {
+			return true;
+		}
+			
+		int next_x, next_y; 
+		if (movei == N * N) {
+			for (int k = 0; k < 8; k++) { 
+				next_x = x + xMove[k]; 
+				next_y = y + yMove[k]; 
+				if (isSafeFinal(next_x, next_y, sol)) { 
+					sol[next_x][next_y] = movei; 
+					if (solveKTUtil(next_x, next_y, movei + 1, 
+									sol, xMove, yMove)) 
+						return true; 
+					
+				} 
+			} 
+		}
+			
 
-        List<int[]> possibleMoves = new ArrayList<>();
-        for (int i = 0; i < 8; i++) {
-            int nextX = x + moveX[i];
-            int nextY = y + moveY[i];
+		
+		else {
+			for (int k = 0; k < 8; k++) { 
+				next_x = x + xMove[k]; 
+				next_y = y + yMove[k]; 
+				if (isSafe(next_x, next_y, sol)) { 
+					sol[next_x][next_y] = movei; 
+					if (solveKTUtil(next_x, next_y, movei + 1, 
+								sol, xMove, yMove)) 
+						return true; 
+					else
+						sol[next_x][next_y] 
+								= -1; // backtracking 
+				} 
+			} 
+		}
 
-            if (isSafe(board, nextX, nextY)) {
-                int movesCount = countAvailableMoves(board, nextX, nextY);
-                possibleMoves.add(new int[] {nextX, nextY, movesCount});
-            }
-        }
+		return false; 
+	} 
 
-        possibleMoves.sort((a, b) -> Integer.compare(a[2], b[2]));
-
-        for (int[] move : possibleMoves) {
-            int nextX = move[0];
-            int nextY = move[1];
-
-            board[nextX][nextY] = moveCount;
-            if (knightTour(board, nextX, nextY, moveCount + 1)) {
-                return true;
-            }
-            board[nextX][nextY] = -1;
-        }
-
-        return false;
-    }
-
-    private static int countAvailableMoves(int[][] board, int x, int y) {
-        int[] moveX = {2, 1, -1, -2, -2, -1, 1, 2};
-        int[] moveY = {1, 2, 2, 1, -1, -2, -2, -1};
-
-        int count = 0;
-        for (int i = 0; i < 8; i++) {
-            int nextX = x + moveX[i];
-            int nextY = y + moveY[i];
-            if (isSafe(board, nextX, nextY)) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    private static void divideAndConquerKnightTour(int[][] board, List<int[][]> solutions, int startX, int startY, int subboardSize) {
-        int[][] subboard = new int[subboardSize][subboardSize];
-
-        for (int i = 0; i < subboardSize; i++) {
-            for (int j = 0; j < subboardSize; j++) {
-                subboard[i][j] = board[startX + i][startY + j];
-            }
-        }
-
-        if (knightTour(subboard, 0, 0, 1)) {
-            solutions.add(subboard);
-        }
-
-        if (subboardSize > 1) {
-            int halfSize = subboardSize / 2;
-            divideAndConquerKnightTour(board, solutions, startX, startY, halfSize);
-            divideAndConquerKnightTour(board, solutions, startX + halfSize, startY, halfSize);
-            divideAndConquerKnightTour(board, solutions, startX, startY + halfSize, halfSize);
-            divideAndConquerKnightTour(board, solutions, startX + halfSize, startY + halfSize, halfSize);
-        }
-    }
-
-
-
-    private static void printBoard(int[][] board) {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                System.out.printf("%2d ", board[i][j]);
-            }
-            System.out.println();
-        }
-    }
-}
+	
+	public static void main(String args[]) 
+	{ 
+		Scanner datos=new Scanner(System.in);
+		System.out.println("Introduzca la posición x: ");
+		int x=datos.nextInt();
+		System.out.println("Introduzca la posición y: ");
+		int y=datos.nextInt();
+		// Function Call 
+		solveKT(x,y); 
+		System.out.println("a");
+	} 
+} 
 

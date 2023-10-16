@@ -1,4 +1,4 @@
-package KnightsTour;
+package Temp;
 
 import java.util.Arrays;
 

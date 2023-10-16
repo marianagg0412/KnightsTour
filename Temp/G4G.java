@@ -1,4 +1,4 @@
-package KnightsTour;
+package Temp;
 
 //Java program for Knight Tour problem
 //Java program to for Knight's tour problem using
