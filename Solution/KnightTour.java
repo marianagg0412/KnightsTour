@@ -55,7 +55,7 @@ public class KnightTour {
 		}
 	}
 
-	static boolean Solve(int startx, int starty){
+	public static boolean Solve(){
 		int[][] sol = new int[N][N];
 
 		//initializing matriz in 'unvisited'
@@ -153,7 +153,7 @@ public class KnightTour {
 		startx =datos.nextInt();
 		System.out.println("Introduce the y position: ");
 		starty=datos.nextInt();
-		if(!Solve(startx,starty)){
+		if(!Solve()){
 			System.out.println("Solution not found");
 		}
 	}
